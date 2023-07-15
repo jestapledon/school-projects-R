@@ -1,0 +1,234 @@
+---
+title: "Lab_2"
+author: "Julia Stapledon"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "", message = FALSE, warning = FALSE)
+```
+
+```{r import_data}
+library(ggplot2movies)
+data(movies)
+library(dplyr)
+library(knitr)
+library(ggplot2)
+```
+
+Problem 1
+
+-   What is the range of years of production of the movies in this dataset
+
+```{r year_range}
+cat("The range of years is from ", min(movies$year), " to ", max(movies$year))
+```
+
+Problem 2
+
+-   What is the proportion of movies that have their budget included in this database, and what proportion doesn't? What are the top 5 most expensive movies in this dataset?
+
+```{r movie_budgets}
+included <- sum(!is.na(movies$budget))
+omitted <- sum(is.na(movies$budget))
+tot <- included + omitted
+cat('Proportion of movies that have their budget listed: ', included/tot, "\n")
+cat('Proportion of movies that do not have their budget listed: ', omitted/tot, "\n")
+cat("Top 5 highest budget movies", "\n")
+budgets <- select(arrange(movies, desc(budget)), title, budget)
+kable(budgets[1:5,])
+```
+
+\newpage
+
+Problem 3
+
+-   What are the top 5 longest movies?
+
+```{r longest_movies}
+lengths <- select(arrange(movies, desc(length)), title, length)
+kable(lengths[1:5,])
+```
+
+Problem 4
+
+-   Of all short movies, which is the shortest (in minutes)? Which is the longest? How long are the shortest and the longest short movies?
+
+```{r longest_short}
+shorts <- filter(movies, Short == 1)
+cat("The shortest short movie is: ",
+    (head(arrange(shorts, length), n = 1))$title, " at ",
+    min(shorts$length), "minutes in length\n")
+
+cat("The longest short movie is: ",
+    head(arrange(shorts, desc(length)), n = 1)$title, " at ",
+    max(shorts$length), "minutes in length")
+```
+
+\newpage
+
+Problem 5
+
+-   How many movies of each genre are there in this database?
+
+```{r genre_plot}
+action <- nrow(filter(movies, Action == 1))
+animation <- nrow(filter(movies, Animation == 1))
+comedy <- nrow(filter(movies, Comedy == 1))
+drama <- nrow(filter(movies, Drama == 1))
+documentary <- nrow(filter(movies, Documentary == 1))
+romance <- nrow(filter(movies, Romance == 1))
+short <- nrow(filter(movies, Short == 1))
+color <- c("deeppink","pink","lavender","purple","navy","blue","lightblue")
+genre <- c("action", "animation", "comedy", "drama", "documentary", "romance", "short")
+
+counts <- c(action, animation, comedy, drama, documentary, romance, short)
+
+genres <- barplot(counts, main = "Movies by Genre",
+                  xlab = "Genre", ylim = c(0, max(counts) + 5000), 
+                  col = color, width = 20, space = 0.05)
+legend("topleft", fill = color, legend = genre)
+```
+
+\newpage
+
+Problem 6
+
+-   What is the average rating of all movies within each genre?
+
+```{r avg_rating_genre}
+action <- filter(movies, Action == 1)$rating
+avg_act <- mean(action, na.rm = T)
+animation <- filter(movies, Animation == 1)$rating
+avg_ani <- mean(animation, na.rm = T)
+comedy <- filter(movies, Comedy == 1)$rating
+avg_com <- mean(comedy, na.rm = T)
+drama <- filter(movies, Drama == 1)$rating
+avg_dra <- mean(drama, na.rm = T)
+documentary <- filter(movies, Documentary == 1)$rating
+avg_doc <- mean(documentary, na.rm = T)
+romance <- filter(movies, Romance == 1)$rating
+avg_rom <- mean(romance, na.rm = T)
+short <- filter(movies, Short == 1)$rating
+avg_sho <- mean(short, na.rm = T)
+color <- c("deeppink","pink","lavender","purple","navy","blue","lightblue")
+genre <- c("action", "animation", "comedy", "drama", "documentary", "romance", "short")
+counts <- c(avg_act, avg_ani, avg_com, avg_doc, avg_dra, avg_rom, avg_sho)
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+genres <- barplot(counts, main = "Average Rating of Movies by Genre",
+                  xlab = "Genre", ylim = c(0, 10), 
+                  col = color, width = 20, space = 0.05)
+legend("right", inset=c(-0.33,0), fill = color, legend = genre)
+```
+
+\newpage
+
+Problem 7
+
+-   What is the average rating of all movies within each genre that were produced in the years 2000-2005?
+
+```{r rating_genre_year}
+action <- filter(filter(movies, Action == 1), year <= 2005 & year >= 2000)$rating
+avg_ac <- mean(action, na.rm = T)
+animation <- filter(filter(movies, Animation == 1), year <= 2005 & year >= 2000)$rating
+avg_an <- mean(animation, na.rm = T)
+comedy <- filter(filter(movies, Comedy == 1), year <= 2005 & year >= 2000)$rating
+avg_co <- mean(comedy, na.rm = T)
+drama <- filter(filter(movies, Drama == 1), year <= 2005 & year >= 2000)$rating
+avg_dr <- mean(drama, na.rm = T)
+documentary <- filter(filter(movies, Documentary == 1), year <= 2005 & year >= 2000)$rating
+avg_do <- mean(documentary, na.rm = T)
+romance <- filter(filter(movies, Romance == 1), year <= 2005 & year >= 2000)$rating
+avg_ro <- mean(romance, na.rm = T)
+short <- filter(filter(movies, Short == 1), year < 2005 & year > 2000)$rating
+avg_sh <- mean(short, na.rm = T)
+color <- c("deeppink","pink","lavender","purple","navy","blue","lightblue")
+genre <- c("action", "animation", "comedy", "drama", "documentary", "romance", "short")
+counts <- c(avg_ac, avg_an, avg_co, avg_do, avg_dr, avg_ro, avg_sh)
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+genres <- barplot(counts, main = "Average Rating of Movies by Genre 2000-2005",
+                  xlab = "Genre", ylim = c(0, 10), 
+                  col = color, width = 20, space = 0.05)
+legend("right", inset=c(-0.33,0), fill = color, legend = genre)
+```
+
+\newpage
+
+Problem 8
+
+-   For each of the first 6 genres (not including short movies) consider only movies from 1990 until the last year recorded and plot a function of the number of movies in this data base of corresponding genre produced by year, for years from 1990 until the last year recorded. For each of the 6 genres you should have one curve, and plot all the curves in the same figure.
+
+```{r curve_movies}
+df <- filter(movies, year >= 1990) %>%
+group_by(year) %>%
+summarise(act = sum(Action == 1),
+          ani = sum(Animation == 1),
+          com = sum(Comedy == 1),
+          dra = sum(Drama == 1),
+          doc = sum(Documentary == 1),
+          rom = sum(Romance == 1))
+ggplot(df, aes(x = year)) +
+  geom_line(aes(y = act, color = "Action")) + 
+  geom_line(aes(y = ani, color = "Animation")) + 
+  geom_line(aes(y = com, color = "Comedy")) + 
+  geom_line(aes(y = dra, color = "Drama")) +
+  geom_line(aes(y = doc, color = "Documentary")) +
+  geom_line(aes(y = rom, color = "Romance")) +
+  xlab("Year") + ylab("Movies Made in Each Genre") +
+  ggtitle("Number of Movies Made in Various Genres 1990-2005") +
+  labs(colour= "Genres")
+```
+
+\newpage
+
+Problem 9
+
+-   plot each MPAA rating over the years 1990-2005
+
+```{r mpaa}
+df1 <- filter(movies, year > 1990 & !is.na(movies$mpaa)) %>%
+  group_by(year) %>%
+  summarise(R = sum(mpaa == "R"),
+            PG13 = sum(mpaa == "PG-13"),
+            PG = sum(mpaa == "PG"),
+            NC17 = sum(mpaa == "NC-17"))
+ggplot(df1, aes(x = year)) +
+  geom_line(aes(y = R, color = "R")) +
+  geom_line(aes(y = PG13, color = "PG-13")) +
+  geom_line(aes(y = PG, color = "PG")) +
+  geom_line(aes(y = NC17, color = "NC-17")) +
+  xlab("Year") + ylab("Movies with Various MPAA ratings") +
+  ggtitle("Number of Movies Made With Various MPAA Ratings 1990-2005") +
+  labs(colour= "Rating")
+```
+
+\newpage
+
+-   Plot the budget versus the rating given on IMDB
+
+```{r budget_v_rating}
+df = filter(movies, !is.na(movies$budget) & !is.na(movies$rating) )
+data(df)
+y = df$rating
+x = df$budget
+
+plot(x, y, pch = 16, xlab = "IMDB Rating",
+     ylab = "Budget", main = "IMDB Rating vs. Budget",
+     col = "deeppink")
+```
+
+\newpage
+
+-   Plot votes versus rating
+
+```{r votes_v_rating}
+df = filter(movies, !is.na(movies$votes) & !is.na(movies$rating) )
+data(df)
+x = df$rating
+y = df$votes
+
+plot(x, y, pch = 16, xlab = "IMDB Rating",
+     ylab = "Votes", main = "IMDB Rating vs. Votes",
+     col = "deeppink")
+```

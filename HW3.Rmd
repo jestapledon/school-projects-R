@@ -1,0 +1,127 @@
+---
+title: "Linear Regression"
+author: "Julia S."
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment = "", message = FALSE, warning = FALSE)
+library(dplyr)
+library(knitr)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(tidymodels)
+data(mtcars)
+df = mtcars
+```
+
+## Introduction to Linear Regression| Basic Overview and Application
+
+Linear regression looks at two variables in a set of data in order to find the relationship between the two and make predictions about what future data relating to those variables might look like
+
+Fields that use Linear Regression
+
+- Biology
+
+- Behavioral Sciences
+
+- Business Teams
+
+- Sports Analysts
+
+and many more
+
+## Example of Linear Regression {.smaller}
+``` {r plotly_scatter, echo = TRUE}
+y <- df$mpg
+X <- df$wt
+
+lm_model <- linear_reg() %>% 
+  set_engine('lm') %>% 
+  set_mode('regression') %>%
+  fit(mpg ~ wt, data = df) 
+
+range <- seq(min(X), max(X), length.out = 100)
+range <- matrix(range, nrow=100, ncol=1)
+xd <- data.frame(range)
+colnames(xd) <- c('wt')
+
+yd <- lm_model %>% predict(xd) 
+
+colnames(yd) <- c('mpg')
+xy <- data.frame(xd, yd) 
+
+fig <- plot_ly(df, x = ~wt, y = ~mpg, type = 'scatter',
+               alpha = 0.65, mode = 'markers', name = 'MPG vs Weight')
+fig <- fig %>% add_trace(data = xy, x = ~wt, y = ~mpg,
+                         name = 'Regression Fit', mode = 'lines', alpha = 1)
+```
+
+## Graphing the result
+``` {r plot}
+fig
+```
+
+## Additional graph examples
+``` {r ggplot_scatter, }
+plot <- ggplot(df, aes(x = cyl, y = hp)) + 
+  geom_point(alpha = 1) +
+  geom_smooth(method = 'lm', se = FALSE) +
+  theme_light() +
+  labs( x = 'Cylinders', y = 'Horsepower', title = 'Horsepower v. Cylinders')
+
+plot
+```
+
+## continued
+``` {r scatter2}
+plot1 <- ggplot(df, aes(x = mpg, y = disp)) + 
+  geom_point(alpha = 1) +
+  geom_smooth(method = 'lm', se = FALSE) +
+  labs( x = 'MPGs', y = 'Displacement', title = 'MPG v. Displacement')
+
+plot1
+```
+
+## The Math Behind Linear Regression
+Simple Linear Regression aims to fit a straight line to a set of data.This would make our goal equation: $f(x) = \theta_1\cdot x + \theta_0$
+
+Of course, depending on the values of $\theta_0$ and $\theta_1$ this line can vary greatly, so, the correct values must be found.
+
+There are a few methods that this can be done, one of which being least squares. This is when one calculates $\theta_0$ and $\theta_1$ such that they correspond to the minimum of the sum of squared errors. An error is as follows: $error_i = y_i - y(x_i) = y_i - (\theta_0x_i + \theta_1)$
+
+$y_i$ is the actual value of y and $y(x_i)$ is the predicted value of y
+
+## The Math Behind Linear Regression Continued
+now, it was mentioned that least squares is the summation of the squared errors, this looks like: 
+
+$\sum_{i = 1}^n errors_{i}^2 = \sum_{i = 1}^n(y_i - \theta_0x_i - \theta_1)^2$
+
+where n is the samples on the dataset.
+
+The least part of least squares mean that we want to find the values of $\theta_0$ and $\theta_1$ so that the sum is minimized. we do that by setting the derivative of the function to zero.
+
+${dS\over d\theta_0} = 0$ therefore $\sum_{i = 1}^n sx_i (y_i - \theta_0x_i - \theta_1) = 0$
+
+## Continued
+
+When simplified this yields: 
+
+$\theta_0 = {\sum_{i = 1}^n x_i(y_i - \bar{y})}\over {\sum{i = 1}^n x_i(x_i - \bar{x})}$
+
+$\theta_1 = \bar{y} - \theta_0\bar{x}$
+
+where: 
+
+$\bar{x} =$ ${\sum{i = 1}^n x_i} \over {n}$
+
+and
+
+$\bar{y} =$ ${\sum{i = 1}^n y_i} \over {n}$
+
+which can be used to find our original function
+
+## Final Thoughts
+Linear regression is one of the more common topics seen in statistics and can be used across many fields. All you need is two variables that could have some sort of correlation to one another in order to make predictions about what other data may look like in the future data.

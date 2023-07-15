@@ -1,0 +1,68 @@
+---
+title: "lab_1"
+author: "Julia Stapledon"
+date: "2023-03-30"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r read_data}
+df = read.csv("Absenteeism_at_work.csv", sep = ";", header = TRUE)
+```
+
+```{r height_vs_weight}
+x = df$Weight
+y = df$Height
+
+plot(x, y,pch = 16, xlab = 'Weight', ylab  = 'Height',
+     main = 'Height vs. Weight', col = "deeppink")
+```
+
+This graph doesn't provide much useful information. There is some grouping and some outliers but nothing meaningful for trends.
+
+```{r hours_of_absences}
+hist(df$Absenteeism.time.in.hours, xlab = "Hours", 
+     main = "Hours of Absences", col = "deeppink")
+```
+
+Most people have less than 10 hours of being absent from work.
+
+```{r age_vs_absences}
+hist(df$Age, xlab = "Age",
+     main = "Age Corresponding to Absences", col = "deeppink")
+```
+
+The most occurrences are between 35-40. There is not a curve but there is less occurrences on the right side of the histogram.
+
+```{r hours_by_month}
+counts <- table(df$Month.of.absence)
+barplot(counts, main = "Absent Hours by Month", xlab = "Month", ylab = "Hours Absent",
+         ylim = c(0 , max(counts) + 15), col = "deeppink")
+```
+
+there is not much to gather from this plot. The most absences were in March, but there are no trends. The 0 is people who had never been absent.
+
+```{r social_smoker}
+hours <- df$Absenteeism.time.in.hours
+smoking_status <- df$Social.smoker
+boxplot(hours~smoking_status, data = df, col = c("deeppink", "pink"), 
+        main = "Social Smoking vs Hours Absent", horizontal = T)
+legend("topright", legend = c("Non-Smoker", "Smoker"), fill = c("deeppink", "pink"))
+
+```
+
+There is no correlation between smoking and hours absent. 
+
+``` {r social_drinker}
+hours <- df$Absenteeism.time.in.hours
+drinking_status <- df$Social.drinker
+boxplot(hours~drinking_status, data = df, col = c("deeppink", "pink"),
+        main = "Social Drinking vs. Hours", horizontal = T)
+legend("topright", legend = c("Non-Drinker","Drinker"), fill = c("deeppink", "pink"))
+```
+
+Once again there isn't much to gather from this information. There are many outliers and this graph doesn't show much.
